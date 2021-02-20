@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
 
 //#include "autocomplete.h"
 
@@ -27,12 +26,13 @@ void read_in_terms(struct term **terms, int *pnterms, char *filename)
     {
         fscanf(fp, "%lf", &((*terms)->weight)); 
         char line[200];
-        fgets(line, sizeof(line), fp); 
+        fgets(line, sizeof(line), fp);
+        line[strcspn(line, "\n")] = 0;
         strcpy((*terms)->term, line+1);
         (*terms)++;
     }
     fclose(fp);
-    
+
     // sort in alphabetical order
     qsort(pterms, *pnterms, sizeof(struct term), comp_func);
     *terms = pterms;
@@ -40,7 +40,6 @@ void read_in_terms(struct term **terms, int *pnterms, char *filename)
     for (int i = 0; i < *pnterms; i++){
         printf("%i: %s\n", i, (*terms)[i].term);
     }
-
 }
 
 
@@ -70,17 +69,15 @@ int lowest_match(struct term *terms, int nterms, char *substr)
     memcpy(res_end, terms[nterms-1].term, strlen(substr));
 
     res[strlen(substr)] = '\0';
-
+    /*
     for (int i = 0; i < nterms; i++){
         printf("%s \n", (terms)[i].term);
     }
     printf("\n\n");
-
-    if (nterms == 0)
-    {
+    */
+    if (nterms == 0){
         return -1;
     }
-
     if (strcmp(substr, res_start) < 0 || strcmp(substr, res_end) > 0) {
         return -1;
     }
@@ -122,11 +119,9 @@ int highest_match(struct term *terms, int nterms, char *substr)
     printf("\n\n");
     }*/
 
-    if (nterms == 0)
-    {
+    if (nterms == 0){
         return -1;
     }
-
     if (strcmp(substr, res_start) < 0 || strcmp(substr, res_end) > 0) {
         return -1;
     }
@@ -149,9 +144,6 @@ int highest_match(struct term *terms, int nterms, char *substr)
 // parts 2a and 2b may not work for strings not found ?? should return -1
 // everything else works
 
-
-
-
 static int sorter(const void *term1, const void *term2)
 {
     struct term *term_a = (struct term *)term1;
@@ -159,6 +151,7 @@ static int sorter(const void *term1, const void *term2)
 
     return (term_b->weight - term_a->weight);
 }
+
 
 void autocomplete(struct term **answer, int *n_answer, struct term *terms, int nterms, char *substr)
 {
@@ -172,9 +165,7 @@ void autocomplete(struct term **answer, int *n_answer, struct term *terms, int n
 
     *n_answer = (last-first)+1;
     *answer = (struct term *)malloc(sizeof(struct term) * (*n_answer));
-
     struct term *pterms = *answer;
-
 
     for (int i = first; i <= last; i++)
     {
@@ -193,34 +184,25 @@ void autocomplete(struct term **answer, int *n_answer, struct term *terms, int n
     }
 }
 
-
-
-
 int main(void)
 {
     struct term *terms;
     int nterms; // changes this value globally 
-    read_in_terms(&terms, &nterms, "cities2.txt");
-
+    read_in_terms(&terms, &nterms, "/Users/hassankhurram/Desktop/ESC190/project_1/cities.txt");
 
     //int lowest_ind = lowest_match(terms, nterms, "M");
     //printf("\n%d\n------------\n\n\n", lowest_ind);
 
-
     //int highest_ind = highest_match(terms, nterms, "M");
     //printf("\n%d\n", highest_ind);
-
 
     struct term *answer;
     int n_answer;
 
-    autocomplete(&answer, &n_answer, terms, nterms, "M");
-
-
+    autocomplete(&answer, &n_answer, terms, nterms, "Tor");
 
     //free allocated blocks here -- not required for the project, but good practice
-
-    //free(terms);
+    free(terms);
     return 0;
 
 }
