@@ -46,8 +46,8 @@ void read_in_terms(struct term **terms, int *pnterms, char *filename)
 
 int ceiling(double num)
 {
-    double test = num - (int)num;
-    if (test >= 0.5){
+    double temp = num - (int)num;
+    if (temp >= 0.5){
         return (int)num + 1;
     }
     else return (int)num;
