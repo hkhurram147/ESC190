@@ -44,13 +44,26 @@ void read_in_terms(struct term **terms, int *pnterms, char *filename)
 }
 
 
+int ceiling(double num)
+{
+    double test = num - (int)num;
+    if (isdigit(num)){
+        return (int)num;
+    }
+    else if (test >= 0.5){
+        return (int)num + 1;
+    }
+    else return (int)num;
+}
+
+
 int lowest_match(struct term *terms, int nterms, char *substr)
 {
-    /* must run in O(log(nterms)) time : runtime complexity = (O(log(N))
+    /* runtime complexity is (O(log(N))
      BINARY SEARCH implementation
-     function returns the index in terms of the first term in lexical order
+     Function returns the index in terms of the first term in lexical order
     */
-    //char *res = slicing(terms[mid].term, 0, strlen(substr));
+
     int mid = (int)(nterms / 2);
     char res[strlen(substr)+1];
     memcpy(res, terms[mid].term, strlen(substr));
@@ -60,28 +73,28 @@ int lowest_match(struct term *terms, int nterms, char *substr)
     char res_end[strlen(substr)+1];
     memcpy(res_end, terms[nterms-1].term, strlen(substr));
 
-
+    res[strlen(substr)] = '\0';
+    /*
     for (int i = 0; i < nterms; i++){
         printf("%s \n", (terms)[i].term);
     }
-
     printf("\n\n");
+     */
 
     if (strcmp(substr, res_start) < 0 || strcmp(substr, res_end) > 0) {
         return -1;
     }
-
     if (strcmp(substr, res) > 0) {
-        return ((int)(nterms / 2) + lowest_match(&terms[mid], (int)(nterms / 2), substr));
+        return ((nterms / 2) + lowest_match(&terms[mid], ceiling(nterms*0.5), substr));
     }
     if (strcmp(substr, res) < 0) {
-        return (lowest_match(terms, (int)(nterms/2), substr));
+        return (lowest_match(terms, (int)(nterms*0.5), substr));
     }
     if (strcmp(substr, res) == 0)
     {
-        if (lowest_match(terms, (int)(nterms/2), substr) != -1) // is there a smaller index? if there is, recursively check
+        if (lowest_match(terms, (int)(nterms*0.5), substr) != -1)
         {
-            return (lowest_match(terms, (int)(nterms/2), substr));
+            return (lowest_match(terms, (int)(nterms*0.5), substr));
         } else {
             return nterms/2;
         }
@@ -90,13 +103,9 @@ int lowest_match(struct term *terms, int nterms, char *substr)
 }
 
 
-
-
-
 int highest_match(struct term *terms, int nterms, char *substr)
 {
-    int mid = nterms / 2; 
-    //char *res = slicing(terms[mid].term, 0, strlen(substr));
+    int mid = nterms / 2;
     char res[strlen(substr)+1];
     memcpy(res, terms[mid].term, strlen(substr));
     //printf("\nRES-high: %s\n", res);
@@ -104,26 +113,29 @@ int highest_match(struct term *terms, int nterms, char *substr)
     memcpy(res_start, terms[0].term, strlen(substr));
     char res_end[strlen(substr)+1];
     memcpy(res_end, terms[nterms-1].term, strlen(substr));
+
+    res[strlen(substr)] = '\0';
     /*
     for (int i = 0; i < nterms; i++){
         printf("%s\n", (terms)[i].term);
-    }*/
+
     printf("\n\n");
+    }*/
 
     if (strcmp(substr, res_start) < 0 || strcmp(substr, res_end) > 0) {
         return -1;
     }
     if (strcmp(substr, res) > 0){
-        return ((nterms/2) + highest_match(&terms[mid], nterms/2, substr));
+        return ((nterms/2) + highest_match(&terms[mid], nterms*0.5, substr));
     }
     if (strcmp(substr, res) < 0){
-        return (highest_match(terms, nterms/2, substr));
+        return (highest_match(terms, nterms*0.5, substr));
     }
     if (strcmp(substr, res) == 0){
-        if (highest_match(&terms[mid] + 1, nterms/2 , substr) != -1){
-            return ((nterms/2) + 1) + (highest_match(&terms[mid] + 1, nterms/2 , substr));
+        if (highest_match(&terms[mid] + 1, nterms*0.5 , substr) != -1){
+            return ((nterms*0.5) + 1) + (highest_match(&terms[mid] + 1, nterms*0.5 , substr));
         } else {
-            return nterms/2;
+            return nterms*0.5;
         }
     }
     return -1;
@@ -146,23 +158,20 @@ void autocomplete(struct term **answer, int *n_answer, struct term *terms, int n
 
 }
 
-
-
 */
-
 
 int main(void)
 {
     struct term *terms;
     int nterms; // changes this value globally 
-    read_in_terms(&terms, &nterms, "/Users/hassankhurram/Desktop/ESC190/project_1/cities2.txt");
+    read_in_terms(&terms, &nterms, "cities2.txt");
 
 
-    int lowest_ind = lowest_match(terms, nterms, "Ma");
+    int lowest_ind = lowest_match(terms, nterms, "D");
     printf("\n%d\n------------\n\n\n", lowest_ind);
 
 
-    int highest_ind = highest_match(terms, nterms, "Ma");
+    int highest_ind = highest_match(terms, nterms, "D");
     printf("\n%d\n", highest_ind);
 
     /*
