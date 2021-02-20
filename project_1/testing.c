@@ -17,11 +17,9 @@ static int comp_func(const void *str1, const void *str2){
 void read_in_terms(struct term **terms, int *pnterms, char *filename)
 {
     // each new block is stored in *terms 
-    FILE *fp = fopen("cities2.txt", "r");
-
+    FILE *fp = fopen(filename, "r");
     // count number of terms
     fscanf(fp, "%d", pnterms);
-    printf("%d\n", *pnterms);///////
 
     *terms = (struct term *)malloc(sizeof(struct term) * (*pnterms));
     struct term *pterms = *terms; 
@@ -38,102 +36,97 @@ void read_in_terms(struct term **terms, int *pnterms, char *filename)
     // sort in alphabetical order
     qsort(pterms, *pnterms, sizeof(struct term), comp_func);
     *terms = pterms;
-
-    for (int i = 0; i < *pnterms; i++)
-    {
-        printf("%s%f \n\n\n", (*terms)[i].term, (*terms)[i].weight);
+    /*
+    for (int i = 0; i < *pnterms; i++){
+        printf("%i: %s\n", i, (*terms)[i].term);
     }
+     */
 }
-
-/*
-char *slicing1(const char *str, int start, int end)
-{
-        char *res = malloc(end - start + 1);
-        if (!res)
-        {
-            return NULL;
-        }
-        int i;
-        for (i = 0; i < (end-start); i++)
-        {
-            res[i] = str[start+i];
-        }
-        res[i] = '\0';
-        return res;
-}
-*/
-
 
 
 int lowest_match(struct term *terms, int nterms, char *substr)
 {
-    // must run in O(log(nterms)) time : runtime complexity = (O(log(N))
-    // BINARY SEARCH implementation
-    // function returns the index in terms of the first term in lexical order that MATCHES the substr
-    int mid = nterms / 2; 
+    /* must run in O(log(nterms)) time : runtime complexity = (O(log(N))
+     BINARY SEARCH implementation
+     function returns the index in terms of the first term in lexical order
+    */
     //char *res = slicing(terms[mid].term, 0, strlen(substr));
+    int mid = (int)(nterms / 2);
     char res[strlen(substr)+1];
     memcpy(res, terms[mid].term, strlen(substr));
-    
-    printf("\nRES: %s\n", res);
-    if (nterms == 1){
+    //printf("\nRES-low: %s\n", res); ////
+    char res_start[strlen(substr)+1];
+    memcpy(res_start, terms[0].term, strlen(substr));
+    char res_end[strlen(substr)+1];
+    memcpy(res_end, terms[nterms-1].term, strlen(substr));
+
+
+    for (int i = 0; i < nterms; i++){
+        printf("%s \n", (terms)[i].term);
+    }
+
+    printf("\n\n");
+
+    if (strcmp(substr, res_start) < 0 || strcmp(substr, res_end) > 0) {
         return -1;
     }
-    if (strcmp(substr, res) > 0)
-    {
-        return ((nterms/2) + lowest_match(&terms[mid], nterms/2, substr));
+
+    if (strcmp(substr, res) > 0) {
+        return ((int)(nterms / 2) + lowest_match(&terms[mid], (int)(nterms / 2), substr));
     }
-    if (strcmp(substr, res) < 0){
-        return (lowest_match(terms, nterms/2, substr));
+    if (strcmp(substr, res) < 0) {
+        return (lowest_match(terms, (int)(nterms/2), substr));
     }
     if (strcmp(substr, res) == 0)
     {
-        if (lowest_match(terms, nterms/2, substr) != -1)
+        if (lowest_match(terms, (int)(nterms/2), substr) != -1) // is there a smaller index? if there is, recursively check
         {
-            return (lowest_match(terms, nterms/2, substr));
+            return (lowest_match(terms, (int)(nterms/2), substr));
         } else {
             return nterms/2;
         }
     }
     return -1;
-
 }
+
+
 
 
 
 int highest_match(struct term *terms, int nterms, char *substr)
 {
- int mid = nterms / 2; // look at the middle of the array
-
     int mid = nterms / 2; 
     //char *res = slicing(terms[mid].term, 0, strlen(substr));
     char res[strlen(substr)+1];
     memcpy(res, terms[mid].term, strlen(substr));
-    
-    if (nterms == 1)
-    {
-        //return (int)terms; // return the (current elem index) - (index of first elem in terms)
+    //printf("\nRES-high: %s\n", res);
+    char res_start[strlen(substr)+1];
+    memcpy(res_start, terms[0].term, strlen(substr));
+    char res_end[strlen(substr)+1];
+    memcpy(res_end, terms[nterms-1].term, strlen(substr));
+    /*
+    for (int i = 0; i < nterms; i++){
+        printf("%s\n", (terms)[i].term);
+    }*/
+    printf("\n\n");
+
+    if (strcmp(substr, res_start) < 0 || strcmp(substr, res_end) > 0) {
         return -1;
     }
-
-    if (strcmp(substr, res) > 0)
-    {
+    if (strcmp(substr, res) > 0){
         return ((nterms/2) + highest_match(&terms[mid], nterms/2, substr));
     }
-    else if (strcmp(substr, res) < 0)
-    {
+    if (strcmp(substr, res) < 0){
         return (highest_match(terms, nterms/2, substr));
     }
-    else if (strcmp(substr, res) == 0)
-    {
-        if (highest_match(&terms[mid] + 1, nterms/2, substr) != -1)
-        {
-            return (highest_match(&terms[mid] + 1, nterms/2, substr));
+    if (strcmp(substr, res) == 0){
+        if (highest_match(&terms[mid] + 1, nterms/2 , substr) != -1){
+            return ((nterms/2) + 1) + (highest_match(&terms[mid] + 1, nterms/2 , substr));
         } else {
-            return nterms/;
+            return nterms/2;
         }
+    }
     return -1;
-
 }
 
 
@@ -162,19 +155,24 @@ int main(void)
 {
     struct term *terms;
     int nterms; // changes this value globally 
-    read_in_terms(&terms, &nterms, "cities2.txt");
+    read_in_terms(&terms, &nterms, "/Users/hassankhurram/Desktop/ESC190/project_1/cities2.txt");
+
+
+    int lowest_ind = lowest_match(terms, nterms, "Ma");
+    printf("\n%d\n------------\n\n\n", lowest_ind);
+
+
+    int highest_ind = highest_match(terms, nterms, "Ma");
+    printf("\n%d\n", highest_ind);
 
     /*
-    int lowest_ind = lowest_match(terms, nterms, "Seoul");
-    printf("\n\n\n%d\n", lowest_ind);
-    */
-
-    int highest_ind = highest_match(terms, nterms, "Tor");
-    printf("\n\n\n%d\n", highest_ind);
-
     struct term *answer;
     int n_answer;
-    //autocomplete(&answer, &n_answer, terms, int nterms, "Tor");
+
+    autocomplete(&answer, &n_answer, terms, nterms, "Tor");
+    */
+
+
     //free allocated blocks here -- not required for the project, but good practice
 
     free(terms);
