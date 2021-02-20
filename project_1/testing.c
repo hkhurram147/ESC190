@@ -200,7 +200,7 @@ int main(void)
 {
     struct term *terms;
     int nterms; // changes this value globally 
-    read_in_terms(&terms, &nterms, "/Users/hassankhurram/Desktop/ESC190/project_1/cities2.txt");
+    read_in_terms(&terms, &nterms, "cities2.txt");
 
 
     //int lowest_ind = lowest_match(terms, nterms, "M");
