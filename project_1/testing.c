@@ -47,10 +47,7 @@ void read_in_terms(struct term **terms, int *pnterms, char *filename)
 int ceiling(double num)
 {
     double test = num - (int)num;
-    if (isdigit(num)){
-        return (int)num;
-    }
-    else if (test >= 0.5){
+    if (test >= 0.5){
         return (int)num + 1;
     }
     else return (int)num;
@@ -158,7 +155,10 @@ void autocomplete(struct term **answer, int *n_answer, struct term *terms, int n
 
 }
 
+
+
 */
+
 
 int main(void)
 {
