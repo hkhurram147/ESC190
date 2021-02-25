@@ -9,22 +9,23 @@ struct term{
     double weight;
 };
 
+
 static int comp_func(const void *str1, const void *str2){
     return strcmp(str1, str2);
 }
 
 void read_in_terms(struct term **terms, int *pnterms, char *filename)
 {
-    // each new block is stored in *terms 
+    // each new block is stored in *terms
     FILE *fp = fopen(filename, "r");
     // count number of terms
     fscanf(fp, "%d", pnterms);
 
     *terms = (struct term *)malloc(sizeof(struct term) * (*pnterms));
-    struct term *pterms = *terms; 
+    struct term *pterms = *terms;
     for (int i = 0; i <= *pnterms; i++)
     {
-        fscanf(fp, "%lf", &((*terms)->weight)); 
+        fscanf(fp, "%lf", &((*terms)->weight));
         char line[200];
         fgets(line, sizeof(line), fp);
         line[strcspn(line, "\n")] = 0;
@@ -36,10 +37,11 @@ void read_in_terms(struct term **terms, int *pnterms, char *filename)
     // sort in alphabetical order
     qsort(pterms, *pnterms, sizeof(struct term), comp_func);
     *terms = pterms;
-
+/*
     for (int i = 0; i < *pnterms; i++){
         printf("%i: %s\n", i, (*terms)[i].term);
     }
+*/
 }
 
 
@@ -180,15 +182,16 @@ void autocomplete(struct term **answer, int *n_answer, struct term *terms, int n
 
     for (int k = 0; k < *n_answer; k++)
     {
-        printf("%i: %s %lf\n", k, (*answer)[k].term, (*answer)[k].weight);
+        printf("%s %lf\n", (*answer)[k].term, (*answer)[k].weight);
     }
+
 }
 
 int main(void)
 {
     struct term *terms;
-    int nterms; // changes this value globally 
-    read_in_terms(&terms, &nterms, "/Users/hassankhurram/Desktop/ESC190/project_1/cities.txt");
+    int nterms; // changes this value globally
+    read_in_terms(&terms, &nterms, "/Users/hassankhurram/Desktop/ESC190/project_1/randomwords.txt");
 
     //int lowest_ind = lowest_match(terms, nterms, "M");
     //printf("\n%d\n------------\n\n\n", lowest_ind);
@@ -199,7 +202,7 @@ int main(void)
     struct term *answer;
     int n_answer;
 
-    autocomplete(&answer, &n_answer, terms, nterms, "Tor");
+    autocomplete(&answer, &n_answer, terms, nterms, "paj");
 
     //free allocated blocks here -- not required for the project, but good practice
     free(terms);
