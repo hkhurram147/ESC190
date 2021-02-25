@@ -115,6 +115,7 @@ int highest_match(struct term *terms, int nterms, char *substr)
     int mid = nterms / 2;
     char res[strlen(substr)+1];
     memcpy(res, terms[mid].term, strlen(substr));
+    //printf("\nRES-high: %s\n", res);
     char res_start[strlen(substr)+1];
     memcpy(res_start, terms[0].term, strlen(substr));
     char res_end[strlen(substr)+1];
@@ -122,8 +123,7 @@ int highest_match(struct term *terms, int nterms, char *substr)
 
     res[strlen(substr)] = '\0';
 
-    for (int i = 0; i < nterms; i++)
-    {
+    for (int i = 0; i < nterms; i++){
         printf("%s\n", (terms)[i].term);
     }
     printf("\n\n");
@@ -138,34 +138,22 @@ int highest_match(struct term *terms, int nterms, char *substr)
         return -1;
     }
 
-    if (strcmp(substr, res) > 0)
-    {
-        if (highest_match(&terms[mid]+1, (nterms * 0.5), substr) != -1)
-        {
-            return ((nterms * 0.5)+1 + highest_match(&terms[mid]+1, (nterms * 0.5), substr));
-        }
-        else return -1;
+    if (strcmp(substr, res) > 0) {
+        if (highest_match(&terms[mid], ceiling(nterms*0.5), substr) != -1) {
+            return ((nterms/2) + highest_match(&terms[mid], ceiling(nterms * 0.5), substr));
+        } else return -1;
     }
 
-
-    if (strcmp(substr, res) < 0)
-    {
+    if (strcmp(substr, res) < 0){
         return (highest_match(terms, nterms*0.5, substr));
     }
-
-
-    if (strcmp(substr, res) == 0)
-    {
-        if (highest_match(&terms[mid]+1, nterms*0.5 , substr) != -1)
-        {
-            return ((nterms*0.5)) + 1 + (highest_match(&terms[mid] + 1, nterms*0.5, substr));
+    if (strcmp(substr, res) == 0){
+        if (highest_match(&terms[mid] + 1, nterms*0.5 , substr) != -1){
+            return ((nterms*0.5) + 1) + (highest_match(&terms[mid] + 1, nterms*0.5 , substr));
+        } else {
+            return nterms*0.5;
         }
-
-        else return nterms / 2;
-
     }
-
-
     return -1;
 }
 
@@ -232,12 +220,12 @@ int main(void)
 {
     struct term *terms;
     int nterms; // changes this value globally
-    read_in_terms(&terms, &nterms, "/Users/hassankhurram/Desktop/ESC190/project_1/case5.txt");
+    read_in_terms(&terms, &nterms, "/Users/hassankhurram/Desktop/ESC190/project_1/cities2.txt");
 
-    int lowest_ind = lowest_match(terms, nterms, "z");
+    int lowest_ind = lowest_match(terms, nterms, "İ");
 
 
-    int highest_ind = highest_match(terms, nterms, "z");
+    int highest_ind = highest_match(terms, nterms, "İ");
 
     printf("\n%d\n------------\n", lowest_ind);
     printf("\n%d\n", highest_ind);
@@ -247,7 +235,7 @@ int main(void)
     struct term *answer;
     int n_answer;
 
-    //autocomplete(&answer, &n_answer, terms, nterms, "z");
+    //autocomplete(&answer, &n_answer, terms, nterms, "Tor77");
 
     //free allocated blocks here -- not required for the project, but good practice
     free(terms);
