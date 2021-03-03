@@ -1,17 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-//#include "autocomplete.h"
-
-
-
-struct term
-{
-    char term[200]; // assume terms are not longer than 200 chars
-    double weight;
-};
-
-
+#include "autocomplete.h"
 
 // Part 1
 
@@ -23,15 +13,15 @@ static int comp_func(const void *str1, const void *str2)
     else return 1;
 }
 
-
-
-
 void read_in_terms(struct term **terms, int *pnterms, char *filename)
 {
     // each new block is stored in *terms
     FILE *fp = fopen(filename, "r");
+    char line[200];
+
     // count number of terms
-    fscanf(fp, "%d", pnterms);
+    fgets(line, sizeof(line)+1,fp);
+    *pnterms = atof(line);
 
     *terms = (struct term *)malloc(sizeof(struct term) * (*pnterms));
     struct term *pterms = *terms;
@@ -39,7 +29,6 @@ void read_in_terms(struct term **terms, int *pnterms, char *filename)
     {
         fscanf(fp, "%lf", &((*terms)->weight));
 
-        char line[200];
         fgets(line, sizeof(line), fp);
         line[strcspn(line, "\n")] = 0;
         strcpy((*terms)->term, line+1);
@@ -47,12 +36,12 @@ void read_in_terms(struct term **terms, int *pnterms, char *filename)
     }
     fclose(fp);
 
+
     // sort in alphabetical order
-    qsort(pterms, *pnterms, sizeof(struct term), comp_func);
     *terms = pterms;
+    qsort(pterms, *pnterms, sizeof(struct term), comp_func);
+
 }
-
-
 
 
 
@@ -67,87 +56,76 @@ int ceiling(double num)
     else return (int)num;
 }
 
+
+
 int lowest_match(struct term *terms, int nterms, char *substr)
 {
-    int mid = ceiling(nterms / 2);
-    char res[strlen(substr)+1];
-    memcpy(res, terms[mid].term, strlen(substr));
-    //printf("\nRES-low: %s\n", res); ////
-    char res_start[strlen(substr)+1];
-    memcpy(res_start, terms[0].term, strlen(substr));
-    char res_end[strlen(substr)+1];
-    memcpy(res_end, terms[nterms-1].term, strlen(substr));
-
-    res[strlen(substr)] = '\0';
-
     if (nterms == 0)
     {
         return -1;
     }
-    else {
-        if (strcmp(substr, res_start) < 0 || strcmp(substr, res_end) > 0)
+
+    int mid = (int) nterms/2;
+    char res_mid[strlen(substr)];
+    memcpy(res_mid, terms[mid].term, strlen(substr));
+    char res_start[strlen(substr)];
+    memcpy(res_start, terms[0].term, strlen(substr));
+    char res_end[strlen(substr)];
+    memcpy(res_end, terms[nterms-1].term, strlen(substr));
+
+    res_mid[strlen(substr)] = '\0';
+
+
+    if (strcmp(substr, res_start) < 0 || strcmp(substr, res_end) > 0)
+    {
+        return -1;
+    }
+
+
+    if (strcmp(substr, res_mid) > 0)
+    {
+        if ((lowest_match(&terms[mid], ceiling(nterms * 0.5), substr)) != -1)
         {
-            return -1;
+            return ((nterms / 2) + lowest_match(&terms[mid], ceiling(nterms * 0.5), substr));
         }
-        if (strcmp(substr, res) > 0)
-        {
-            if ((lowest_match(&terms[mid], ceiling(nterms * 0.5), substr)) != -1)
-            {
-                return ((nterms / 2) + lowest_match(&terms[mid], ceiling(nterms * 0.5), substr));
-            }
-            else return -1;
-        }
-        if (strcmp(substr, res) < 0)
+        else return -1;
+    }
+    if (strcmp(substr, res_mid) < 0)
+    {
+        return (lowest_match(terms, (int) (nterms * 0.5), substr));
+    }
+    if (strcmp(substr, res_mid) == 0)
+    {
+        if (lowest_match(terms, (int) (nterms * 0.5), substr) != -1)
         {
             return (lowest_match(terms, (int) (nterms * 0.5), substr));
         }
-        if (strcmp(substr, res) == 0)
-        {
-            if (lowest_match(terms, (int) (nterms * 0.5), substr) != -1)
-            {
-                return (lowest_match(terms, (int) (nterms * 0.5), substr));
-            }
-            else return nterms / 2;
-        }
+        else return nterms / 2;
     }
     return -1;
 }
 
 
 
-/*
-
-int ind_high(struct term *terms, int nterms, char *substr)
-{
-
-
-
-
-}
-*/
-
-
-
-
 int highest_match(struct term *terms, int nterms, char *substr)
 {
+    if (nterms == 0)
+    {
+        return -1;
+    }
+
     int mid = (int) nterms/2;
-    char res_mid[strlen(substr)+1];
+    char res_mid[strlen(substr)];
     memcpy(res_mid, terms[mid].term, strlen(substr));
-    printf("\nmiddle element letter: %s\n", res_mid);
-    char res_start[strlen(substr)+1];
+    char res_start[strlen(substr)];
     memcpy(res_start, terms[0].term, strlen(substr));
-    char res_end[strlen(substr)+1];
+    char res_end[strlen(substr)];
     memcpy(res_end, terms[nterms-1].term, strlen(substr));
+
     res_mid[strlen(substr)] = '\0';
 
-    for (int i = 0; i < nterms; i++){
-        printf("%s\n", (terms)[i].term);
-    }
-    printf("\n");
 
-
-    if ((strcmp(substr, res_start) < 0) || (strcmp(substr, res_end) > 0))
+    if (strcmp(substr, res_start) < 0 || strcmp(substr, res_end) > 0)
     {
         return -1;
     }
@@ -163,12 +141,11 @@ int highest_match(struct term *terms, int nterms, char *substr)
 
     if (strcmp(substr, res_mid) < 0)
     {
-        return (highest_match(terms, (int)(nterms*0.5), substr));
+        return (highest_match(terms, (int) (nterms * 0.5), substr));
     }
-    
 
     if (strcmp(substr, res_mid) == 0)
-    { //////////////// the last element goes over (why is there a wrap around????)
+    {
         if ( (nterms > 1) && highest_match(&terms[mid] + 1,  (ceiling)(nterms*0.5) - 1, substr) != -1)
         {
             return ((int)(nterms*0.5) + 1) + (highest_match(&terms[mid] + 1, (ceiling)(nterms*0.5) - 1 , substr));
@@ -176,27 +153,9 @@ int highest_match(struct term *terms, int nterms, char *substr)
 
         else return (int)(nterms*0.5);
     }
+
     return -1;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -208,8 +167,7 @@ int highest_match(struct term *terms, int nterms, char *substr)
 
 
 // Part 3
-
-static int sorter(const void *term1, const void *term2)
+int sorter(const void *term1, const void *term2)
 {
     struct term *term_a = (struct term *)term1;
     struct term *term_b = (struct term *)term2;
@@ -219,12 +177,12 @@ static int sorter(const void *term1, const void *term2)
 
 
 
-
 void autocomplete(struct term **answer, int *n_answer, struct term *terms, int nterms, char *substr)
 {
     int first = lowest_match(terms, nterms, substr);
     int last = highest_match(terms, nterms, substr);
 
+    // seg fault here?
     if ((first == last) && (first == -1))
     {
         *n_answer = 0;
@@ -237,48 +195,25 @@ void autocomplete(struct term **answer, int *n_answer, struct term *terms, int n
 
     for (int i = first; i <= last; i++)
     {
-        double temp_weight = terms[i].weight;
-        char *temp_term = terms[i].term;
-        (*answer)->weight = temp_weight;
-        strcpy((*answer)->term, temp_term);
+        (*answer)->weight = terms[i].weight;
+        strcpy((*answer)->term, terms[i].term);
         (*answer)++;
     }
-    qsort(pterms, *n_answer, sizeof(struct term), sorter); // sort the array, answer by weight
+
+    qsort(pterms, *n_answer, sizeof(struct term),  sorter); // sort the array, answer by weight
     *answer = pterms;
 
-
-    
-
+    /*
+    for (int k = 0; k < *n_answer; k++)
+    {
+        printf("%s\n", (*answer)[k].term);
+    }
+     */
 }
 
 
 
 
 
-int main(void)
-{
-    struct term *terms;
-    int nterms; // changes this value globally
-    read_in_terms(&terms, &nterms, "/Users/hassankhurram/Desktop/Engineering Science/ESC190/project_1/case88.txt");
-
-    int lowest_ind = lowest_match(terms, nterms, "t");
-
-    int highest_ind = highest_match(terms, nterms, "t");
-
-    printf("lowest index: %d\n\n", lowest_ind);
-    printf("highest index: %d\n", highest_ind);
 
 
-
-
-
-
-    struct term *answer;
-    int n_answer;
-
-    autocomplete(&answer, &n_answer, terms, nterms, "t");
-
-    //free allocated blocks here -- not required for the project, but good practice
-    free(terms);
-    return 0;
-}
