@@ -1,0 +1,24 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/Users/hassankhurram/Desktop/Engineering Science/ESC190/project_2/c_img.c
+c_img.h
+/Users/hassankhurram/Desktop/Engineering Science/ESC190/project_2/c_img.h
+stdio.h
+-
+stdlib.h
+-
+math.h
+-
+
+/Users/hassankhurram/Desktop/Engineering Science/ESC190/project_2/c_img.h
+stdlib.h
+-
+stdint.h
+-
+
